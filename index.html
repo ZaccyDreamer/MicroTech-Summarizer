@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MicroTech Lecture Summarizer | Engineering PDF Condenser</title>
+    <title>MicroTech Summarizer | Structured Document Summaries</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+    <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] } };</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -45,6 +50,16 @@
             border-color: #667eea;
             background-color: #f0f4ff;
         }
+        .summary-content h1,.summary-content h2,.summary-content h3 { color:#1e293b; font-weight:700; margin:1.1rem 0 .45rem; }
+        .summary-content h1 { font-size:1.35rem; } .summary-content h2 { font-size:1.15rem; }
+        .summary-content p { margin:.5rem 0; line-height:1.75; }
+        .summary-content ul,.summary-content ol { padding-left:1.5rem; margin:.55rem 0; }
+        .summary-content li { margin:.3rem 0; line-height:1.65; }
+        .summary-content table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.875rem; }
+        .summary-content th { background:#eef2ff; color:#312e81; text-align:left; }
+        .summary-content th,.summary-content td { border:1px solid #cbd5e1; padding:.55rem .65rem; vertical-align:top; }
+        .summary-content blockquote { border-left:3px solid #818cf8; padding:.25rem .8rem; margin:.7rem 0; color:#475569; background:#f8fafc; }
+        .summary-content code { background:#f1f5f9; padding:.1rem .25rem; border-radius:.25rem; font-family:monospace; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -67,11 +82,11 @@
                     </span>
                     <span class="flex items-center gap-2">
                         <i data-lucide="file-text" class="w-4 h-4"></i>
-                        PDF to PDF
+                        PDFs & pasted text
                     </span>
                     <span class="flex items-center gap-2">
                         <i data-lucide="timer" class="w-4 h-4"></i>
-                        75% Shorter
+                        Structured summaries
                     </span>
                 </div>
             </div>
@@ -81,20 +96,11 @@
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Hero Section --> <div class="text-center mb-10">
-            <h2 class="text-1xl md:text-3xl font-bold text-slate-800 mb-2">
-DESIGNED BY ZACCY FOR COMRADES.  
-              <hr>
+        <!-- Hero Section -->
         <div class="text-center mb-10">
-            <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-3">
-                Summarize Engineering,Business or any unit course Lectures Instantly
-                <hr>
-                
-            </h2>
-            <p class="text-slate-600 max-w-2xl mx-auto text-lg">
-                Transform lengthy Microprocessor, Control Systems, and Instrumentation notes into concise, exam-ready study materials. 
-                Reduces content to <span class="font-semibold text-indigo-600">25%</span> while preserving all examinable concepts.
-            </p>
+            <p class="text-sm font-semibold uppercase tracking-wider text-indigo-600 mb-3">Designed by Zaccy for comrades</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-3">Understand long documents faster</h2>
+            <p class="text-slate-600 max-w-2xl mx-auto text-lg">Turn lectures, notes, novels, reports, and complex problem sets into clear summaries with readable explanations, preserved equations, and useful tables.</p>
         </div>
 
         <!-- Configuration Panel -->
@@ -107,7 +113,7 @@ DESIGNED BY ZACCY FOR COMRADES.
             <!-- Subject Selection -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-slate-700 mb-3">Select Subject Area (for better context)</label>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                     <button class="subject-card selected border-2 border-slate-200 rounded-xl p-4 text-left hover:border-indigo-300" data-subject="Microprocessor Technology Control and Instrumentation">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="p-2 bg-blue-100 rounded-lg">
@@ -123,9 +129,19 @@ DESIGNED BY ZACCY FOR COMRADES.
                             <div class="p-2 bg-purple-100 rounded-lg">
                                 <i data-lucide="sliders" class="w-5 h-5 text-purple-600"></i>
                             </div>
-                            <span class="font-semibold text-slate-800">Physcis And  mathematics Relate course >
+                        <span class="font-semibold text-slate-800">Physics &amp; Mathematics</span>
                         </div>
                         <p class="text-xs text-slate-500">Transfer functions, Stability, PID, State-space, mathematics formulas</p>
+                    </button>
+
+                    <button class="subject-card border-2 border-slate-200 rounded-xl p-4 text-left hover:border-indigo-300" data-subject="Literature and novels">
+                        <div class="flex items-center gap-3 mb-2"><div class="p-2 bg-amber-100 rounded-lg"><i data-lucide="book-open" class="w-5 h-5 text-amber-600"></i></div><span class="font-semibold text-slate-800">Literature &amp; Novels</span></div>
+                        <p class="text-xs text-slate-500">Themes, characters, plot, evidence, and style</p>
+                    </button>
+
+                    <button class="subject-card border-2 border-slate-200 rounded-xl p-4 text-left hover:border-indigo-300" data-subject="General and professional documents">
+                        <div class="flex items-center gap-3 mb-2"><div class="p-2 bg-cyan-100 rounded-lg"><i data-lucide="briefcase" class="w-5 h-5 text-cyan-600"></i></div><span class="font-semibold text-slate-800">General &amp; Professional</span></div>
+                        <p class="text-xs text-slate-500">Reports, research, business, and other documents</p>
                     </button>
                     
                     <button class="subject-card border-2 border-slate-200 rounded-xl p-4 text-left hover:border-indigo-300" data-subject="Theory/business and other philosopy related course">
@@ -143,13 +159,12 @@ DESIGNED BY ZACCY FOR COMRADES.
             <!-- API Key Input (for HuggingFace) -->
             <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
                 <label class="block text-sm font-medium text-slate-700 mb-2">
-                  INPUT  Zaccy's  API KEY (Free)
-                    <span class="text-xs text-slate-500 font-normal ml-2">- </span>
+                  Hugging Face access token
                 </label>
                 <input type="password" id="apiKey" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxx" 
                     class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm">
                 <p class="text-xs text-slate-500 mt-2">
-                    We require you to use Zaccy's API to protect the app from an authorized personel.✔️
+                    Your token is used in your browser to call Hugging Face Inference Providers. Avoid entering a token you cannot safely use here.
                 </p>
             </div>
         </div>
@@ -160,14 +175,24 @@ DESIGNED BY ZACCY FOR COMRADES.
                 <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="upload-cloud" class="w-10 h-10 text-indigo-600"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-slate-800 mb-2">Upload Lecture PDF</h3>
-                <p class="text-slate-500 mb-6">Drag and drop your PDF here, or click to browse</p>
-                <input type="file" id="fileInput" accept=".pdf" class="hidden">
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">Add material to summarize</h3>
+                <p class="text-slate-500 mb-4">Upload a text based PDF, or paste notes, a lecture, report, or novel excerpt.</p>
+                <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
                 <button onclick="document.getElementById('fileInput').click()" 
                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    Select PDF File
+                    Choose PDF
                 </button>
-                <p class="text-xs text-slate-400 mt-4">Maximum file size: 50MB • Text-based PDFs only</p>
+                <p class="text-xs text-slate-400 mt-3">PDF text extraction happens in your browser. Maximum PDF size: 50 MB.</p>
+                <div class="max-w-3xl mx-auto mt-6 text-left">
+                    <label for="sourceText" class="block text-sm font-medium text-slate-700 mb-2">Or paste text</label>
+                    <textarea id="sourceText" rows="7" placeholder="Paste your notes, lecture, report, or a passage from a novel here..." class="w-full rounded-xl border border-slate-300 p-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"></textarea>
+                    <div class="mt-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                        <label class="text-sm text-slate-600">Summary detail
+                            <select id="detailLevel" class="ml-2 rounded-lg border border-slate-300 px-3 py-2 bg-white"><option value="concise">Concise</option><option value="balanced" selected>Balanced</option><option value="detailed">Detailed</option></select>
+                        </label>
+                        <button id="summarizeTextBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium">Summarize pasted text</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -176,7 +201,7 @@ DESIGNED BY ZACCY FOR COMRADES.
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
                     <i data-lucide="loader-2" class="w-5 h-5 text-indigo-600 loading-pulse"></i>
-                    Processing Lecture...
+                    Processing material...
                 </h3>
                 <span id="progressPercent" class="text-sm font-medium text-indigo-600">0%</span>
             </div>
@@ -231,9 +256,9 @@ DESIGNED BY ZACCY FOR COMRADES.
             <div class="border border-slate-200 rounded-xl overflow-hidden">
                 <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
                     <span class="font-medium text-slate-700 text-sm">Preview</span>
-                    <span class="text-xs text-slate-500 bg-white px-2 py-1 rounded border">First 1000 chars</span>
+                    <span class="text-xs text-slate-500 bg-white px-2 py-1 rounded border">Formatted summary</span>
                 </div>
-                <div id="previewContent" class="p-4 text-sm text-slate-700 max-h-64 overflow-y-auto font-serif leading-relaxed bg-white">
+                <div id="previewContent" class="summary-content p-6 text-sm text-slate-700 max-h-[36rem] overflow-y-auto bg-white">
                 </div>
             </div>
         </div>
@@ -245,7 +270,7 @@ DESIGNED BY ZACCY FOR COMRADES.
                     <i data-lucide="brain" class="w-6 h-6 text-indigo-600"></i>
                 </div>
                 <h4 class="font-semibold text-slate-800 mb-2">AI-Powered Analysis</h4>
-                <p class="text-sm text-slate-600">Uses state-of-the-art BART-CNN model to identify and preserve examinable concepts, formulas, and definitions.</p>
+                <p class="text-sm text-slate-600">Uses an instruction-following language model to summarize technical, literary, and general material in context.</p>
             </div>
             
             <div class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
@@ -253,7 +278,7 @@ DESIGNED BY ZACCY FOR COMRADES.
                     <i data-lucide="scissors" class="w-6 h-6 text-purple-600"></i>
                 </div>
                 <h4 class="font-semibold text-slate-800 mb-2">Smart Compression</h4>
-                <p class="text-sm text-slate-600">Intelligently reduces content to 25% by removing redundancies while keeping technical details, block diagrams, and equations.</p>
+                <p class="text-sm text-slate-600">Choose a concise, balanced, or detailed result while retaining important context and technical details.</p>
             </div>
             
             <div class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
@@ -261,7 +286,7 @@ DESIGNED BY ZACCY FOR COMRADES.
                     <i data-lucide="graduation-cap" class="w-6 h-6 text-green-600"></i>
                 </div>
                 <h4 class="font-semibold text-slate-800 mb-2">Exam-Ready Format</h4>
-                <p class="text-sm text-slate-600">Generates structured PDFs with bullet points, highlighted key terms, and organized sections for quick revision.</p>
+                <p class="text-sm text-slate-600">Generates organized summaries with clear paragraphs, helpful lists, preserved equations, and readable tables.</p>
             </div>
         </div>
 
@@ -270,7 +295,7 @@ DESIGNED BY ZACCY FOR COMRADES.
     <!-- Footer -->
     <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-sm"> @ZaccyDreamer, zaccmunuhe7@gmail.com ■, Designed for Engineering Students • Client-side Processing • API Key Required for AI Features</p>
+            <p class="text-sm">@ZaccyDreamer · Designed for learning and clear document summaries · PDF text is extracted in your browser; selected text is sent to Hugging Face for summarization.</p>
         </div>
     </footer>
 
@@ -279,7 +304,7 @@ DESIGNED BY ZACCY FOR COMRADES.
         lucide.createIcons();
 
         // Global variables
-        let selectedSubject = 'SUMMMERIZED NOTES ';
+        let selectedSubject = 'Microprocessor Technology Control and Instrumentation';
         let extractedText = '';
         let summaryText = '';
         let originalFileName = '';
@@ -316,6 +341,16 @@ DESIGNED BY ZACCY FOR COMRADES.
 
         uploadArea.addEventListener('drop', handleDrop, false);
         fileInput.addEventListener('change', handleFiles, false);
+        document.getElementById('summarizeTextBtn').addEventListener('click', () => {
+            const text = document.getElementById('sourceText').value.trim();
+            if (!text) return alert('Paste some text first.');
+            originalFileName = 'Pasted_Material';
+            extractedText = cleanText(text);
+            document.getElementById('uploadArea').classList.add('hidden');
+            document.getElementById('progressSection').classList.remove('hidden');
+            document.getElementById('processLog').classList.remove('hidden');
+            summarizeText(extractedText, 0, document.getElementById('apiKey').value);
+        });
 
         function handleDrop(e) {
             const dt = e.dataTransfer;
@@ -325,7 +360,8 @@ DESIGNED BY ZACCY FOR COMRADES.
 
         function handleFiles(e) {
             const file = e.target.files[0];
-            if (file && file.type === 'application/pdf') {
+            if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
+                if (file.size > 50 * 1024 * 1024) return alert('This PDF is larger than the 50 MB limit.');
                 processPDF(file);
             } else {
                 alert('Please upload a valid PDF file');
@@ -334,11 +370,11 @@ DESIGNED BY ZACCY FOR COMRADES.
 
         // PDF Processing
         async function processPDF(file) {
-            originalFileName = file.name.replace('.pdf', '');
+            originalFileName = file.name.replace(/\.pdf$/i, '');
             const apiKey = document.getElementById('apiKey').value;
             
             if (!apiKey) {
-                alert('Please enter zaccy HuggingFace API key first.\n contact him @0798581825');
+                alert('Enter a Hugging Face access token with Inference Providers permission first.');
                 return;
             }
 
@@ -377,6 +413,7 @@ DESIGNED BY ZACCY FOR COMRADES.
                 
                 // Clean up text
                 extractedText = cleanText(extractedText);
+                if (!extractedText) throw new Error('No selectable text was found. This may be a scanned PDF; make it text-readable with OCR first.');
                 
                 // Summarize
                 await summarizeText(extractedText, totalPages, apiKey);
@@ -386,122 +423,6 @@ DESIGNED BY ZACCY FOR COMRADES.
                 log(`Error: ${error.message}`);
                 alert('Error processing PDF: ' + error.message);
                 resetUpload();
-            }
-        }
-
-        function cleanText(text) {
-            // Remove excessive whitespace and normalize
-            return text.replace(/\s+/g, ' ').replace(/\n\s*\n/g, '\n\n').trim();
-        }
-
-        async function summarizeText(text, pageCount, apiKey) {
-            updateProgress(60, 'Preparing text for AI summarization...');
-            log('Initializing AI model (facebook/bart-large-cnn)...');
-
-            // Split text into chunks (BART has ~1024 token limit, roughly 800-900 chars per chunk to be safe)
-            const maxChunkLength = 800;
-            const chunks = [];
-            
-            // Smart splitting at sentence boundaries
-            const sentences = text.match(/[^\.!\?]+[\.!\?]+/g) || [text];
-            let currentChunk = '';
-            
-            for (const sentence of sentences) {
-                if ((currentChunk + sentence).length > maxChunkLength) {
-                    if (currentChunk) chunks.push(currentChunk.trim());
-                    currentChunk = sentence;
-                } else {
-                    currentChunk += sentence;
-                }
-            }
-            if (currentChunk) chunks.push(currentChunk.trim());
-
-            log(`Text split into ${chunks.length} chunks for processing`);
-
-            const summaries = [];
-            const subjectContext = getSubjectContext();
-
-            for (let i = 0; i < chunks.length; i++) {
-                const progress = 60 + Math.round(((i + 1) / chunks.length) * 30);
-                updateProgress(progress, `Summarizing chunk ${i + 1} of ${chunks.length}...`);
-                log(`Processing chunk ${i + 1}/${chunks.length}...`);
-
-                try {
-                    const chunkSummary = await summarizeChunk(chunks[i], apiKey, subjectContext);
-                    if (chunkSummary) {
-                        summaries.push(chunkSummary);
-                        log(`Chunk ${i + 1} summarized successfully`);
-                    }
-                } catch (error) {
-                    log(`Warning: Chunk ${i + 1} failed, using original`);
-                    summaries.push(chunks[i].substring(0, 200) + '...');
-                }
-                
-                // Rate limiting - small delay between requests
-                if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 500));
-            }
-
-            // Combine summaries
-            summaryText = summaries.join('\n\n');
-            
-            // If still too long, do a second pass summary
-            if (summaryText.length > 5000) {
-                updateProgress(95, 'Final compression pass...');
-                log('Performing final optimization pass...');
-                try {
-                    const finalSummary = await summarizeChunk(summaryText.substring(0, 3000), apiKey, subjectContext);
-                    if (finalSummary) summaryText = finalSummary;
-                } catch (e) {
-                    log('Final pass skipped');
-                }
-            }
-
-            updateProgress(100, 'Complete!');
-            log('Summarization complete!');
-            
-            showResults(pageCount, summaries.length);
-        }
-
-        function getSubjectContext() {
-            const contexts = {
-                "Microprocessor Technology Control and Instrumentation": " Focus on: Sensor types (RTD, thermocouple, strain gauge), signal conditioning, ADC/DAC, PLC programming, data acquisition systems, measurement accuracy, and calibration methods. Preserve circuit diagrams and specifications Focus on: 8085/8086 architecture, instruction sets, assembly programming, memory interfacing, timing diagrams, interrupts, DMA, and microprocessor applications. Preserve technical specifications, pin diagrams, and assembly code examples.Also include all  important details.Focus on: Transfer functions, block diagrams, stability criteria (Routh-Hurwitz, Nyquist), PID controllers, root locus, state-space representations, Bode plots, and system response characteristics. Preserve mathematical derivations and formulas.",
-                "PHYSICS AND MATHEMATICS RELATED COURSES": "Focus on mathematicalformulas, physics principles, and their applications in engineering. Include key equations, derivations, and problem-solving techniques relevant to university mathematical,include equations and diagrams.",
-                "Theory/business and other philosopy related courses": "Focus on: Philosophical concepts, theories, and their applications in business and other fields. Include key arguments, critiques, and problem-solving techniques relevant to university-level philosophy courses ,also incude all points related to arts courses in university level."
-            };
-            return contexts[selectedSubject] || contexts.microprocessor;
-        }
-
-        async function summarizeChunk(chunk, apiKey, context) {
-            const prompt = `Summarize this lecture text focusing on examinable content. Context: ${context}\n\nText: ${chunk}\n\nSummary (concise, bullet points if appropriate, preserve all formulas and technical terms):`;
-            
-            const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        max_length: 250,
-                        min_length: 50,
-                        do_sample: false
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
-
-            const result = await response.json();
-            
-            if (Array.isArray(result) && result[0] && result[0].summary_text) {
-                return result[0].summary_text;
-            } else if (result.summary_text) {
-                return result.summary_text;
-            } else {
-                return chunk.substring(0, 200) + '... [truncated]';
             }
         }
 
@@ -515,21 +436,57 @@ DESIGNED BY ZACCY FOR COMRADES.
         function log(message) {
             const logDiv = document.getElementById('processLog');
             const time = new Date().toLocaleTimeString();
-            logDiv.innerHTML += `[${time}] ${message}\n`;
+            logDiv.textContent += `[${time}] ${message}\n`;
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-        function showResults(originalPages, keyPoints) {
-            document.getElementById('progressSection').classList.add('hidden');
-            document.getElementById('resultsSection').classList.remove('hidden');
-            
-            document.getElementById('originalPages').textContent = originalPages;
-            document.getElementById('compressionRate').textContent = '75%';
-            document.getElementById('summaryLength').textContent = keyPoints;
-            document.getElementById('previewContent').textContent = summaryText.substring(0, 1000) + '...';
-            
-            lucide.createIcons();
+        function cleanText(text) {
+            return text.replace(/\r/g, '').replace(/[\t ]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim();
         }
+
+        const originalDownloadButton = document.getElementById('downloadBtn');
+        const formattedDownloadButton = originalDownloadButton.cloneNode(true);
+        originalDownloadButton.replaceWith(formattedDownloadButton);
+        formattedDownloadButton.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const margin = 18;
+            let y = 20;
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(67, 56, 202);
+            doc.text('Document Summary', margin, y); y += 9;
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90, 100, 115);
+            doc.text(`Type: ${selectedSubject}  |  Source: ${originalFileName}  |  ${new Date().toLocaleDateString()}`, margin, y); y += 8;
+            doc.setDrawColor(203, 213, 225); doc.line(margin, y, 192, y); y += 7;
+            const lines = summaryText.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) { y += 2; continue; }
+                if (line.startsWith('|') && line.endsWith('|')) {
+                    const tableLines = [];
+                    while (i < lines.length && lines[i].trim().startsWith('|')) tableLines.push(lines[i++].trim());
+                    i--;
+                    const rows = tableLines.map(row => row.slice(1, -1).split('|').map(cell => cell.trim()))
+                        .filter(row => !row.every(cell => /^:?-{3,}:?$/.test(cell)));
+                    if (rows.length && doc.autoTable) {
+                        doc.autoTable({ startY: y, head: [rows[0]], body: rows.slice(1), margin: { left: margin, right: margin }, theme: 'grid', styles: { font: 'helvetica', fontSize: 8, cellPadding: 2.2, overflow: 'linebreak' }, headStyles: { fillColor: [238, 242, 255], textColor: [49, 46, 129], fontStyle: 'bold' }, alternateRowStyles: { fillColor: [248, 250, 252] } });
+                        y = doc.lastAutoTable.finalY + 6;
+                    }
+                    continue;
+                }
+                let text = line; let size = 10; let bold = false; let color = [55, 65, 81];
+                if (/^#{1,3}\s/.test(line)) { text = line.replace(/^#{1,3}\s*/, ''); size = line.startsWith('# ') ? 16 : line.startsWith('## ') ? 13 : 11; bold = true; color = [49, 46, 129]; y += 2; }
+                else if (/^[-*+]\s/.test(line)) text = '•  ' + line.replace(/^[-*+]\s*/, '');
+                else if (/^\d+[.)]\s/.test(line)) text = line.replace(/^\d+[.)]\s*/, '•  ');
+                else if (/^>\s?/.test(line)) { text = line.replace(/^>\s?/, ''); color = [71, 85, 105]; }
+                doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(size); doc.setTextColor(...color);
+                const wrapped = doc.splitTextToSize(text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/`([^`]+)`/g, '$1'), 174);
+                for (const part of wrapped) {
+                    if (y > 275) { doc.addPage(); y = 20; }
+                    doc.text(part, margin, y); y += size > 10 ? 7 : 5;
+                }
+            }
+            doc.save(`Summary_${originalFileName}_${new Date().toISOString().slice(0, 10)}.pdf`);
+        });
 
         function resetUpload() {
             document.getElementById('uploadArea').classList.remove('hidden');
@@ -540,61 +497,112 @@ DESIGNED BY ZACCY FOR COMRADES.
             summaryText = '';
         }
 
-        // PDF Generation
-        document.getElementById('downloadBtn').addEventListener('click', function() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Header
-            doc.setFontSize(20);
-            doc.setTextColor(102, 126, 234);
-            doc.text('Lecture Summary', 20, 20);
-                        doc.text('designed by Zaccy for comrades', 20, 20);
-
-            
-            doc.setFontSize(12);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Subject: ${selectedSubject.charAt(0).toUpperCase() + selectedSubject.slice(1)}`, 20, 30);
-            doc.text(`Original File: ${originalFileName}`, 20, 37);
-            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 44);
-            
-            // Line
-            doc.setDrawColor(200, 200, 200);
-            doc.line(20, 50, 190, 50);
-            
-            // Content
-            doc.setFontSize(11);
-            doc.setTextColor(50, 50, 50);
-            
-            const splitText = doc.splitTextToSize(summaryText, 170);
-            let y = 60;
-            
-            // Add pages as needed
-            for (let i = 0; i < splitText.length; i++) {
-                if (y > 280) {
-                    doc.addPage();
-                    y = 20;
-                }
-                doc.text(splitText[i], 20, y);
-                y += 6;
-            }
-            
-            // Footer on last page
-            doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text('Generated by MicroTech Summarizer • AI-Enhanced Study Material #:@ZaccyDreamer', 20, 285);
-            
-            doc.save(`Summary_${originalFileName}_${new Date().toISOString().split('T')[0]}.pdf`);
-        });
-
         // Allow reset
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && !document.getElementById('uploadArea').classList.contains('hidden')) {
                 resetUpload();
             }
         });
-    </script>
-    <script src="https://github.com/zaccmunuhe7-byte"></script>
 
+        // Instruction-following summarization and structured output.
+        async function summarizeText(text, pageCount, apiKey) {
+            try {
+                if (!apiKey) throw new Error('Enter a Hugging Face access token with Inference Providers permission first.');
+                if (text.length > 500000) throw new Error('This material is over the 500,000 character limit. Split it into smaller documents.');
+                let chunks = splitIntoChunks(text, 9000);
+                const context = getSubjectContext();
+                for (let i = 0; i < chunks.length; i++) {
+                    updateProgress(60 + Math.round((i + 1) / chunks.length * 35), `Summarizing section ${i + 1} of ${chunks.length}...`);
+                    log(`Summarizing section ${i + 1}/${chunks.length}`);
+                    chunks[i] = await summarizeChunk(chunks[i], apiKey, context, i, chunks.length);
+                }
+                let mergePass = 0;
+                while (chunks.length > 1 && mergePass < 5) {
+                    const grouped = splitIntoChunks(chunks.join('\n\n'), 9000);
+                    if (grouped.length >= chunks.length) break;
+                    const merged = [];
+                    for (let i = 0; i < grouped.length; i++) {
+                        updateProgress(95, `Organizing summary sections (${mergePass + 1})...`);
+                        merged.push(await summarizeChunk(grouped[i], apiKey, context, i, grouped.length, true));
+                    }
+                    chunks = merged;
+                    mergePass++;
+                }
+                summaryText = chunks.join('\n\n');
+                updateProgress(100, 'Complete!');
+                showResults(pageCount, countKeyPoints(summaryText));
+            } catch (error) {
+                console.error(error); log(`Error: ${error.message}`); alert(error.message); resetUpload();
+            }
+        }
+
+        function splitIntoChunks(text, maxLength) {
+            const units = text.split(/(?<=[.!?])\s+(?=[A-Z0-9(])|\n{2,}/);
+            const chunks = []; let current = '';
+            for (let unit of units) {
+                unit = unit.trim();
+                while (unit.length > maxLength) {
+                    if (current) { chunks.push(current); current = ''; }
+                    let cut = unit.lastIndexOf(' ', maxLength);
+                    if (cut < maxLength * .6) cut = maxLength;
+                    chunks.push(unit.slice(0, cut)); unit = unit.slice(cut).trim();
+                }
+                if (current.length + unit.length + 2 > maxLength && current) { chunks.push(current); current = ''; }
+                current += (current ? '\n\n' : '') + unit;
+            }
+            if (current) chunks.push(current);
+            return chunks;
+        }
+
+        function getSubjectContext() {
+            const contexts = {
+                'Microprocessor Technology Control and Instrumentation': 'For engineering, preserve terminology, specifications, procedures, equations, units, assumptions, and worked solutions. Use tables for comparisons and variables.',
+                'PHYSICS AND MATHEMATICS RELATED COURSES': 'For mathematics and science, preserve equations, symbols, units, assumptions, derivations, and worked examples. Lay out multi-step solutions in numbered steps. Use tables for numerical values, comparisons, variables, and results when useful.',
+                'Theory/business and other philosopy related course': 'For humanities, business, and theory, explain central ideas in coherent paragraphs; use bullets for arguments, evidence, implications, and comparisons. Preserve nuance and named authors or theories.',
+                'Literature and novels': 'For literature, summarize plot in a concise paragraph, then organize themes, characters, relationships, setting, narrative choices, and supporting details under headings. Never invent events or quotations; distinguish interpretation from events.',
+                'General and professional documents': 'For reports and general documents, identify purpose and audience, then organize findings, evidence, decisions, recommendations, and actions. Preserve names, dates, quantities, and uncertainty.'
+            };
+            return contexts[selectedSubject] || contexts['General and professional documents'];
+        }
+
+        async function summarizeChunk(chunk, apiKey, context, part = 0, total = 1, finalPass = false) {
+            const detail = document.getElementById('detailLevel').value;
+            const lengthGuide = { concise: 'Be concise but retain core meaning.', balanced: 'Use moderate detail and preserve useful context.', detailed: 'Be thorough and retain supporting detail and reasoning.' }[detail];
+            const system = `You are an accurate document summarizer. ${context} ${lengthGuide} Never invent facts. Preserve uncertainty and distinguish source facts from interpretation. Produce clean Markdown with a meaningful title, descriptive headings, coherent short paragraphs, and bullets or numbered steps where useful. Preserve equations and symbols. When the source provides related numerical values, comparisons, or variables, format them as a Markdown table with clear headers and units. Do not force everything into bullets. This is section ${part + 1} of ${total}${finalPass ? '; consolidate all provided section summaries' : ''}.`;
+            const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'google/gemma-2-2b-it:fastest',
+                    messages: [{ role: 'system', content: system }, { role: 'user', content: `Summarize this material:\n\n${chunk}` }],
+                    temperature: 0.2,
+                    max_tokens: detail === 'detailed' ? 1800 : 1200
+                })
+            });
+            if (!response.ok) {
+                const problem = await response.json().catch(() => ({}));
+                throw new Error(problem.error?.message || `Hugging Face request failed (${response.status}). Check token permission and model availability.`);
+            }
+            const result = await response.json();
+            const answer = result.choices?.[0]?.message?.content;
+            if (!answer) throw new Error('The AI provider returned an empty summary. Please try again.');
+            return answer.trim();
+        }
+
+        function countKeyPoints(markdown) {
+            return (markdown.match(/^\s*(?:[-*+] |\d+\. )/gm) || []).length;
+        }
+
+        function showResults(originalPages, keyPoints) {
+            document.getElementById('progressSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('originalPages').textContent = originalPages || '—';
+            document.getElementById('compressionRate').textContent = '—';
+            document.getElementById('summaryLength').textContent = keyPoints;
+            document.getElementById('previewContent').innerHTML = DOMPurify.sanitize(marked.parse(summaryText));
+            if (window.MathJax?.typesetPromise) MathJax.typesetPromise([document.getElementById('previewContent')]);
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>
